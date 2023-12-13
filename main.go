@@ -4,9 +4,24 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
+
+	"internal/pokeapi"
 )
 
+type Config struct{
+	pokeclient pokeapi.Client
+	nextUrl *string
+	prevUrl *string
+}
+
 func main() {
+	cfg := Config{
+		pokeclient: pokeapi.NewClient(time.Minute),
+		nextUrl: nil,
+		prevUrl: nil,
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 	commands := getCommands()
 	var userCmd string
@@ -22,7 +37,7 @@ func main() {
 			continue
 		}
 
-		err := command.run()
+		err := command.run(&cfg)
 		if err != nil {
 			fmt.Println(err)
 		}

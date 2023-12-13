@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
-
-	"github.com/jeffjeffjeff/pokedex2/internal/pokeapi"
 )
 
 type command struct {
 	description string
-	run         func() error
+	run         func(*Config) error
 }
 
 func getCommands() map[string]command {
@@ -24,14 +22,14 @@ func getCommands() map[string]command {
 		},
 		"map": {
 			description: "get the next 20 locations",
-			run: pokeapi.Map,
+			run: getMap,
 		},
 	}
 
 	return cmds
 }
 
-func help() error {
+func help(cfg *Config) error {
 	for name, cmd := range getCommands() {
 		fmt.Printf("%s: %s\n", name, cmd.description)
 	}
@@ -39,7 +37,21 @@ func help() error {
 	return nil
 }
 
-func exit() error {
+func exit(cfg *Config) error {
+	fmt.Println("Bye!")
 	os.Exit(0)
+	return nil
+}
+
+func getMap(cfg *Config) error {
+	resp, err := cfg.pokeclient.ListLocations(cfg.nextUrl)
+	if err != nil {
+		return err
+	}
+
+	for _, loc := range resp.Results {
+		fmt.Println(loc.Name)
+	}
+
 	return nil
 }
