@@ -9,17 +9,20 @@ import (
 	"internal/pokeapi"
 )
 
+
 type Config struct{
 	pokeclient pokeapi.Client
-	nextUrl *string
-	prevUrl *string
+	next *string
+	prev *string
 }
 
 func main() {
+	var BASE_URL string = "https://pokeapi.co/api/v2/location-area"
+	
 	cfg := Config{
 		pokeclient: pokeapi.NewClient(time.Minute),
-		nextUrl: nil,
-		prevUrl: nil,
+		next: &BASE_URL,
+		prev: nil,
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)

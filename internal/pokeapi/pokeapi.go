@@ -7,12 +7,10 @@ import (
 	"net/http"
 )
 
-const BASE_URL string = "https://pokeapi.co/api/v2/location-area?limit=20&offset="
-
 type LocationsResponse struct {
 	Count   int
 	Next    *string
-	Prev    *string
+	Previous    *string
 	Results []Location
 }
 
@@ -21,24 +19,19 @@ type Location struct {
 	Url  string
 }
 
-func (client *Client) ListLocations(nextUrl *string) (LocationsResponse, error) {
-	url := BASE_URL + "0"
-	if nextUrl != nil {
-		url = *nextUrl
-	}
-
-	req, err := http.NewRequest("GET", url, nil)
+func (client *Client) ListNextLocations(url *string) (LocationsResponse, error) {
+	req, err := http.NewRequest("GET", *url, nil)
 	if err != nil {
 		return LocationsResponse{}, err
 	}
 
-	response, err := client.httpClient.Do(req)
+	res, err := client.httpClient.Do(req)
 	if err != nil {
 		return LocationsResponse{}, err
 	}
-	defer response.Body.Close()
+	defer res.Body.Close()
 
-	data, err := io.ReadAll(response.Body)
+	data, err := io.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println("io readall error")
 		return LocationsResponse{}, err
@@ -49,6 +42,32 @@ func (client *Client) ListLocations(nextUrl *string) (LocationsResponse, error) 
 	if err != nil {
 		fmt.Println("json unmarshall error")
 		return LocationsResponse{}, err
+	}
+
+	return locations, nil
+}
+
+func (client *Client) ListPrevLocations(url *string) (LocationsResponse, error) {
+	req, err := http.NewRequest("GET", *url, nil)
+	if err != nil {
+		return LocationsResponse{}, err
+	}
+
+	res, err := client.httpClient.Do(req)
+	if err != nil {
+		return LocationsResponse{}, nil
+	}
+	defer res.Body.Close()
+
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		return LocationsResponse{}, nil
+	}
+
+	locations := LocationsResponse{}
+	err = json.Unmarshal(data, &locations)
+	if err != nil {
+		return LocationsResponse{}, nil
 	}
 
 	return locations, nil

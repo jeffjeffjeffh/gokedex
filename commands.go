@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -11,7 +12,7 @@ type command struct {
 }
 
 func getCommands() map[string]command {
-	cmds := map[string]command{
+	return map[string]command{
 		"help": {
 			description: "get info on possible commands",
 			run:         help,
@@ -24,9 +25,11 @@ func getCommands() map[string]command {
 			description: "get the next 20 locations",
 			run: getMap,
 		},
+		"bmap": {
+			description: "get the previous 20 locations",
+			run: getBmap,
+		},
 	}
-
-	return cmds
 }
 
 func help(cfg *Config) error {
@@ -44,14 +47,41 @@ func exit(cfg *Config) error {
 }
 
 func getMap(cfg *Config) error {
-	resp, err := cfg.pokeclient.ListLocations(cfg.nextUrl)
+	if cfg.next == nil {
+		return errors.New("already at the end of location areas")
+	}
+
+	res, err := cfg.pokeclient.ListNextLocations(cfg.next)
 	if err != nil {
 		return err
 	}
 
-	for _, loc := range resp.Results {
+	for _, loc := range res.Results {
 		fmt.Println(loc.Name)
 	}
+
+	cfg.next = res.Next
+	cfg.prev = res.Previous
+
+	return nil
+}
+
+func getBmap(cfg *Config) error {
+	if cfg.prev == nil {
+		return errors.New("already at the beginning of location areas")
+	}
+
+	res, err := cfg.pokeclient.ListPrevLocations(cfg.prev)
+	if err != nil {
+		return err
+	}
+
+	for _, loc := range res.Results {
+		fmt.Println(loc.Name)
+	}
+
+	cfg.next = res.Next
+	cfg.prev = res.Previous
 
 	return nil
 }
