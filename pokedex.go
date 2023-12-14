@@ -1,6 +1,9 @@
 package main
 
-import "internal/pokeapi"
+import (
+	"errors"
+	"internal/pokeapi"
+)
 
 type Pokedex struct {
 	data map[string]Pokemon
@@ -45,6 +48,19 @@ func (dex *Pokedex) get(name string) (Pokemon, bool) {
 		return Pokemon{}, false
 	}
 	return val, true
+}
+
+func (dex *Pokedex) list() ([]string, error) {
+	if len(dex.data) == 0 {
+		return []string{}, errors.New("your pokedex is empty! you'll never be the best at this rate")
+	}
+
+	names := []string{}
+	for name := range dex.data {
+		names = append(names, name)
+	}
+
+	return names, nil
 }
 
 func (dex *Pokedex) add(name string, pokemon Pokemon) {

@@ -41,6 +41,10 @@ func getCommands() map[string]command {
 			description: "enter the name of a pokemon in your pokedex to see its info",
 			run: inspect,
 		},
+		"pokedex": {
+			description: "list all the caught pokemon in your pokedex",
+			run: pokedex,
+		},
 	}
 }
 
@@ -123,7 +127,6 @@ func catch(cfg *Config, name *string) error {
 	if _, ok := cfg.pokedex.get(*name); ok {
 		return errors.New("you already have this pokemon")
 	}
-
 	
 	res, err := cfg.pokeClient.Catch(*name)
 	if err != nil {
@@ -140,8 +143,7 @@ func catch(cfg *Config, name *string) error {
 
 	fmt.Printf("hey, man, sick! you caught that %s!\n", *name)
 
-	pokemonToAdd := newPokemon(res)
-	cfg.pokedex.add(*name, pokemonToAdd)
+	cfg.pokedex.add(*name, newPokemon(res))
 
 	return nil
 }
@@ -171,4 +173,19 @@ func inspect(cfg *Config, name *string) error {
 	}
 
 	return nil
-} 
+}
+
+func pokedex(cfg *Config, s *string) error {
+	names, err := cfg.pokedex.list()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("your caught pokemon:")
+
+	for _, name := range names {
+		fmt.Printf("- %s\n", name)
+	}
+
+	return nil
+}
