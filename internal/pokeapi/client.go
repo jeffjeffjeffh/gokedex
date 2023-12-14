@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Client struct {
+type Client struct{
 	httpClient http.Client
 	cache PokeCache
 }

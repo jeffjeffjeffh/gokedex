@@ -33,6 +33,14 @@ func getCommands() map[string]command {
 			description: "enter the name of a location to find all the pokemon there",
 			run: explore,
 		},
+		"catch": {
+			description: "enter the name of a pokemon to try and catch",
+			run: catch,
+		},
+		"inspect": {
+			description: "enter the name of a pokemon in your pokedex to see its info",
+			run: inspect,
+		},
 	}
 }
 
@@ -92,7 +100,7 @@ func getBmap(cfg *Config, s *string) error {
 
 func explore(cfg *Config, area *string) error {
 	if area == nil {
-		return errors.New("please include an area to explore")
+		return errors.New("please specify an area to explore")
 	}
 	
 	pokemonList, err := cfg.pokeClient.ListPokemon(*area)
@@ -106,3 +114,61 @@ func explore(cfg *Config, area *string) error {
 
 	return nil
 }
+
+func catch(cfg *Config, name *string) error {
+	if name == nil {
+		return errors.New("please specify a pokemon to try to catch")
+	}
+
+	if _, ok := cfg.pokedex.get(*name); ok {
+		return errors.New("you already have this pokemon")
+	}
+
+	
+	res, err := cfg.pokeClient.Catch(*name)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("you rudely threw a pokeball at a %s...\n", *name)
+
+	catchSucceeded := rollToCatch(res.BaseExperience)
+	if !catchSucceeded {
+		fmt.Printf("aw, crap! the %s got away!\n", *name)
+		return nil
+	}
+
+	fmt.Printf("hey, man, sick! you caught that %s!\n", *name)
+
+	pokemonToAdd := newPokemon(res)
+	cfg.pokedex.add(*name, pokemonToAdd)
+
+	return nil
+}
+
+func inspect(cfg *Config, name *string) error {
+	if name == nil {
+		return errors.New("please enter the name of a pokemon you wish to inspect")
+	}
+
+	pokemon, ok := cfg.pokedex.get(*name)
+	if !ok {
+		return fmt.Errorf("you have not caught a %s yet", *name)
+	}
+
+	fmt.Printf("Name: %s\n", pokemon.name)
+	fmt.Printf("Height: %d\n", pokemon.height)
+	fmt.Printf("Weight: %d\n", pokemon.weight)
+
+	fmt.Printf("Stats:\n")
+	for name, val := range pokemon.stats {
+		fmt.Printf("\t%s: %d\n", name, val)
+	}
+
+	fmt.Println("Types:")
+	for _, t := range pokemon.types {
+		fmt.Printf("\t%s\n", t)
+	}
+
+	return nil
+} 

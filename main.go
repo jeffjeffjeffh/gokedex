@@ -15,6 +15,7 @@ type Config struct{
 	pokeClient pokeapi.Client
 	next *string
 	prev *string
+	pokedex Pokedex
 }
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 		pokeClient: pokeapi.NewClient(time.Minute, time.Minute * 5, time.Minute * 5),
 		next: &BASE_URL,
 		prev: nil,
+		pokedex: newPokedex(),
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
