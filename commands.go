@@ -8,7 +8,7 @@ import (
 
 type command struct {
 	description string
-	run         func(*Config) error
+	run         func(*Config, *string) error
 }
 
 func getCommands() map[string]command {
@@ -29,10 +29,14 @@ func getCommands() map[string]command {
 			description: "get the previous 20 locations",
 			run: getBmap,
 		},
+		"explore": {
+			description: "enter the name of a location to find all the pokemon there",
+			run: explore,
+		},
 	}
 }
 
-func help(cfg *Config) error {
+func help(cfg *Config, s *string) error {
 	for name, cmd := range getCommands() {
 		fmt.Printf("%s: %s\n", name, cmd.description)
 	}
@@ -40,13 +44,13 @@ func help(cfg *Config) error {
 	return nil
 }
 
-func exit(cfg *Config) error {
+func exit(cfg *Config, s *string) error {
 	fmt.Println("Bye!")
 	os.Exit(0)
 	return nil
 }
 
-func getMap(cfg *Config) error {
+func getMap(cfg *Config, s *string) error {
 	if cfg.next == nil {
 		return errors.New("already at the end of location areas")
 	}
@@ -66,7 +70,7 @@ func getMap(cfg *Config) error {
 	return nil
 }
 
-func getBmap(cfg *Config) error {
+func getBmap(cfg *Config, s *string) error {
 	if cfg.prev == nil {
 		return errors.New("already at the beginning of location areas")
 	}
@@ -82,6 +86,23 @@ func getBmap(cfg *Config) error {
 
 	cfg.next = res.Next
 	cfg.prev = res.Previous
+
+	return nil
+}
+
+func explore(cfg *Config, area *string) error {
+	if area == nil {
+		return errors.New("please include an area to explore")
+	}
+	
+	pokemonList, err := cfg.pokeClient.ListPokemon(*area)
+	if err != nil {
+		return err
+	}
+
+	for _, pokemon := range pokemonList {
+		fmt.Println(pokemon)
+	}
 
 	return nil
 }
