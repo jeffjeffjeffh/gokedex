@@ -51,7 +51,7 @@ func getMap(cfg *Config) error {
 		return errors.New("already at the end of location areas")
 	}
 
-	res, err := cfg.pokeclient.ListNextLocations(cfg.next)
+	res, err := cfg.pokeClient.ListLocations(cfg.next)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func getBmap(cfg *Config) error {
 		return errors.New("already at the beginning of location areas")
 	}
 
-	res, err := cfg.pokeclient.ListPrevLocations(cfg.prev)
+	res, err := cfg.pokeClient.ListLocations(cfg.prev)
 	if err != nil {
 		return err
 	}

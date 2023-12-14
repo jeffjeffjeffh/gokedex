@@ -11,7 +11,7 @@ import (
 
 
 type Config struct{
-	pokeclient pokeapi.Client
+	pokeClient pokeapi.Client
 	next *string
 	prev *string
 }
@@ -20,7 +20,7 @@ func main() {
 	var BASE_URL string = "https://pokeapi.co/api/v2/location-area"
 	
 	cfg := Config{
-		pokeclient: pokeapi.NewClient(time.Minute),
+		pokeClient: pokeapi.NewClient(time.Minute, time.Second, time.Second / 2),
 		next: &BASE_URL,
 		prev: nil,
 	}
