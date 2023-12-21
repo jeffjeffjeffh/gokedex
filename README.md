@@ -10,20 +10,20 @@ Users can enter commands in order to interact with the [Pokemon API](https://pok
 
 ## Commands
 
+### Exit
+Quits the program.
+
 ### Help
 Gets info on all the possible commands.
 
-### Exit
-Quits!
-
 ### Map
-Shows the next 20 location-areas
+Shows the next 20 location-areas.
 
 ### Bmap
-Shows the previous 20 location-areas
+Shows the previous 20 location-areas.
 
 ### Explore
-Shows a list of Pokemon that roam in the specified area
+Shows a list of Pokemon that roam in the specified area.
 
 ### Catch
 Attempts to capture the specified Pokemon.
